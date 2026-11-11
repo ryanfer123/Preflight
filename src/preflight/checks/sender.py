@@ -28,7 +28,13 @@ _CONFUSABLES = str.maketrans(
 
 def normalise_domain(value: str) -> str:
     """NFKC/casefold, strip format characters, fold common confusables and rn."""
-    value = unicodedata.normalize("NFKC", value).casefold()
+    labels: list[str] = []
+    for label in value.split("."):
+        try:
+            labels.append(label.encode("ascii").decode("idna"))
+        except UnicodeError:
+            labels.append(label)
+    value = unicodedata.normalize("NFKC", ".".join(labels)).casefold()
     value = "".join(char for char in value if unicodedata.category(char) != "Cf")
     return value.translate(_CONFUSABLES).replace("rn", "m")
 

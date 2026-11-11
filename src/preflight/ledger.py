@@ -106,6 +106,25 @@ class Ledger:
         ).fetchone()
         return None if row is None else self.get_vendor(int(row["id"]))
 
+    def observe_bank_account(
+        self,
+        vendor_id: int,
+        account_identifier: str,
+        first_seen: datetime,
+    ) -> None:
+        """Record an untrusted first sighting without granting baseline approval."""
+        account = normalise_identifier(account_identifier)
+        if not account or first_seen.tzinfo is None:
+            raise ValueError("Account observations need an identifier and timezone")
+        with self.connection:
+            self.connection.execute(
+                """INSERT INTO vendor_bank_accounts
+                (vendor_id, account_identifier_normalised, first_seen, approved_by_user)
+                VALUES (?, ?, ?, 0)
+                ON CONFLICT(vendor_id, account_identifier_normalised) DO NOTHING""",
+                (vendor_id, account, first_seen.isoformat()),
+            )
+
     def approve_bank_account(self, vendor_id: int, account_identifier: str) -> None:
         """Remember an explicitly human-approved canonical payment identifier."""
         account = normalise_identifier(account_identifier)

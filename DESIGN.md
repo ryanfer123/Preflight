@@ -70,6 +70,22 @@ results real-world fraud accuracy.
 - Domains use bounded full-domain comparison, common confusables and zero-width
   stripping. This heuristic is not a complete Unicode confusable registry.
 - Policy regex configuration is local and trusted; it is not document-controlled.
+- Every populated extracted scalar must have value-bearing text evidence on its
+  cited page before checks run. Text presence does not prove semantic association.
+- Image-only extractions require REVIEW because snippets cannot be independently
+  grounded without OCR. Blank-text PDF pages return ocr_unavailable.
+- RFC email has no binary magic; MIME sniffing uses bounded recognizable headers.
+  Attachments remain in memory. One invoice attachment can be selected automatically;
+  multiple attachments or nested emails require REVIEW, never silent selection.
+- Input limits: 10 MiB, 100 PDF pages, 200,000 text characters, 10 attachments,
+  100 MIME parts and 20 levels. Native parser CPU/memory isolation is future work.
+- Providers must support chat/completions and JSON-schema output; images also need
+  a vision model. Transient retries are three attempts per request with 1/2-second
+  backoff; invalid schema gets one retry. No real provider calls occur in tests.
+- Missing core vendor/number/currency/total fields force REVIEW and no fabricated
+  invoice row. Extraction/ingestion/evidence failures return typed report reasons.
+- Vendor lookup defaults to exact local names; callers can select an explicit
+  vendor_id. Neither model output nor uploaded email authenticates vendor identity.
 
 ## Identifier references
 - [GST state master](https://docs.ewaybillgst.gov.in/apidocs/state-code.html)
