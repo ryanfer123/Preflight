@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "preflight-invoice"
+version = "0.1.0"
+description = "Evidence-based pre-payment invoice verification"
+requires-python = ">=3.12,<3.13"
+dependencies = ["pydantic>=2.10,<3"]
+
+[dependency-groups]
+dev = ["hypothesis>=6.120", "mypy>=1.14", "pytest>=8.3", "ruff>=0.9"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/preflight"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 96
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+strict = true
+files = ["src/preflight"]
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
