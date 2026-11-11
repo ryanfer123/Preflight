@@ -3,8 +3,9 @@
 ## Goals and scope
 Preflight will verify small-business invoices before payment and return PASS,
 REVIEW or BLOCK with cited evidence. Deterministic Python decides; a model may
-only extract fields and explain findings. This delivery implements M0 and M1:
-tooling, typed contracts and identifier validators. M2-M5 are planned, not shipped.
+only extract fields and explain findings. M0-M1 establish typed contracts and
+identifier validators; this delivery adds M2 checks/ledger/policy and M3 extraction.
+Web UI, evaluation and Docker remain M4-M5 work.
 
 ## Non-goals
 No payment execution, authentication, multi-tenancy, cloud deployment or model
@@ -45,7 +46,8 @@ results real-world fraud accuracy.
   in this root. Initialize Git because the supplied directory has no repository.
 - Python 3.12 is the supported runtime; uv creates the development environment.
 - Identifier input must already be normalized: uppercase GSTIN/IFSC/IBAN,
-  no embedded spaces; UPI handles permit ASCII letters in either case.
+  UPI handles permit ASCII letters in either case. IBAN also accepts standard
+  four-character printed groups; other identifier whitespace remains invalid.
 - GST state consistency compares a supplied two-digit registration state, not
   place of supply. Historical state codes are accepted for old invoices.
 - Missing or blank identifiers and absent state context are unverifiable.
@@ -53,6 +55,21 @@ results real-world fraud accuracy.
   registries. UPI/IFSC checks validate syntax, not bank or PSP existence.
 - No optional empty subsystem packages, service, evaluator or policy configuration
   are added before their milestone. No network is permitted during tests.
+
+## M2-M3 assumptions
+- Empty or all-unverifiable findings produce REVIEW; a partially verified PASS
+  explicitly carries its unverifiable checks. Informational gaps score zero.
+- Bank baselines bind domestic account and IFSC together. Every supplied payment
+  rail must match an approved identifier; approvals are never automatic.
+- Anomaly baselines use prior PASS invoices for the same vendor and currency.
+  Zero MAD with a different amount is high severity; equal amounts score zero.
+- Duplicates include all verdicts; hash matching is global, financial matching
+  is vendor/currency scoped. Near duplicates use an inclusive prior 3-day window.
+- Uploaded Authentication-Results are not a trusted receiver attestation.
+  Reported failures are warning signals; reported passes never establish trust.
+- Domains use bounded full-domain comparison, common confusables and zero-width
+  stripping. This heuristic is not a complete Unicode confusable registry.
+- Policy regex configuration is local and trusted; it is not document-controlled.
 
 ## Identifier references
 - [GST state master](https://docs.ewaybillgst.gov.in/apidocs/state-code.html)

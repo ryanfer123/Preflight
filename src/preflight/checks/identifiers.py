@@ -2,7 +2,9 @@
 
 import re
 
-from preflight.models import IdentifierResult, VerificationStatus
+from preflight.checks.common import finding
+from preflight.context import Context
+from preflight.models import Finding, IdentifierResult, Invoice, Severity, VerificationStatus
 
 _ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 # Includes historical registrations and the NIC other-territory code.
@@ -73,6 +75,10 @@ def validate_upi_vpa(value: str | None) -> IdentifierResult:
 
 def validate_iban(value: str | None) -> IdentifierResult:
     """Check ISO generic shape and mod-97; no country BBAN registry lookup."""
+    if value is not None and re.fullmatch(
+        r"[A-Z0-9]{4}(?: [A-Z0-9]{4})*(?: [A-Z0-9]{1,4})?", value
+    ):
+        value = value.replace(" ", "")
     base = _format(value, _IBAN, "IBAN")
     if base.status != VerificationStatus.VALID:
         return base
@@ -87,3 +93,30 @@ def validate_iban(value: str | None) -> IdentifierResult:
     if remainder != 1:
         return _result(VerificationStatus.INVALID, "IBAN mod-97 checksum invalid")
     return _result(VerificationStatus.VALID, "IBAN generic syntax and mod-97 valid")
+
+
+def check(invoice: Invoice, context: Context) -> list[Finding]:
+    """Turn invalid and absent identifiers into evidence-bearing observations."""
+    observations = [
+        ("gstin", validate_gstin(invoice.gstin)),
+        ("registration_state", validate_gstin_state(invoice.gstin, invoice.registration_state)),
+        ("bank.ifsc", validate_ifsc(invoice.bank.ifsc)),
+        ("bank.upi_vpa", validate_upi_vpa(invoice.bank.upi_vpa)),
+        ("bank.iban", validate_iban(invoice.bank.iban)),
+    ]
+    results: list[Finding] = []
+    for field, result in observations:
+        if result.status == VerificationStatus.VALID:
+            continue
+        unknown = result.status == VerificationStatus.UNVERIFIABLE
+        results.append(
+            finding(
+                context,
+                "identifiers." + field,
+                field,
+                ("unverifiable: " if unknown else "") + result.reason,
+                Severity.INFO if unknown else Severity.HIGH,
+                unverifiable=unknown,
+            )
+        )
+    return results

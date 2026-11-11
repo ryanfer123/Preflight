@@ -17,7 +17,7 @@ Text = Annotated[str, Field(min_length=1, max_length=2000, pattern=r"\S")]
 
 
 def _reject_numeric_input(value: object, info: ValidationInfo) -> object:
-    if isinstance(value, (int, float)):
+    if not isinstance(value, (Decimal, str)):
         raise ValueError("Use Decimal in Python or a decimal string in JSON")
     if info.mode == "json" and isinstance(value, str):
         try:
@@ -54,6 +54,7 @@ class Finding(StrictModel):
     """A deterministic observation supported by one or more citations."""
 
     check_id: Text
+    status: Literal["observed", "unverifiable"] = "observed"
     severity: Severity
     message: Text
     evidence: Annotated[tuple[Evidence, ...], Field(min_length=1)]
