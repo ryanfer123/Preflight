@@ -12,6 +12,9 @@ from preflight.checks.common import normalise_identifier
 from preflight.context import HistoricalInvoice, Vendor
 
 _SCHEMA = """
+CREATE TABLE IF NOT EXISTS reports (
+    id TEXT PRIMARY KEY, filename TEXT NOT NULL, report TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS vendors (
     id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE,
     known_domains TEXT NOT NULL, created_at TEXT NOT NULL
@@ -249,3 +252,24 @@ class Ledger:
             )
             for row in rows
         )
+
+    def save_report(self, report_id: str, filename: str, report_json: str) -> None:
+        """Persist an immutable report snapshot without storing the original upload."""
+        with self.connection:
+            self.connection.execute(
+                "INSERT INTO reports VALUES (?, ?, ?)", (report_id, filename, report_json)
+            )
+
+    def get_report(self, report_id: str) -> tuple[str, str] | None:
+        """Read a report snapshot by its opaque identifier."""
+        row = self.connection.execute(
+            "SELECT filename, report FROM reports WHERE id = ?", (report_id,)
+        ).fetchone()
+        return None if row is None else (str(row["filename"]), str(row["report"]))
+
+    def invoice_vendor(self, invoice_id: int) -> Vendor | None:
+        """Resolve the actual ledger identity selected for a persisted invoice."""
+        row = self.connection.execute(
+            "SELECT vendor_id FROM invoices WHERE id = ?", (invoice_id,)
+        ).fetchone()
+        return self.get_vendor(row[0]) if row else None

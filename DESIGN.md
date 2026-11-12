@@ -3,9 +3,8 @@
 ## Goals and scope
 Preflight will verify small-business invoices before payment and return PASS,
 REVIEW or BLOCK with cited evidence. Deterministic Python decides; a model may
-only extract fields and explain findings. M0-M1 establish typed contracts and
-identifier validators; this delivery adds M2 checks/ledger/policy and M3 extraction.
-Web UI, evaluation and Docker remain M4-M5 work.
+only extract fields and explain findings. M0-M3 establish typed contracts, validators, checks, ledger and bounded extraction.
+M4-M5 add the local web workbench, Supabase persistence, evaluation and packaging.
 
 ## Non-goals
 No payment execution, authentication, multi-tenancy, cloud deployment or model
@@ -24,7 +23,7 @@ extraction contract. Unknown schema fields and coercive Python inputs are reject
 ## Threat model
 Documents, email headers and model responses are attacker-controlled. Planned
 controls include a 10 MB upload limit, MIME sniffing, document text only in user
-messages, one schema retry, escaping HTML and local-only persistence. Email
+messages, one schema retry, escaping HTML and server-side database persistence. Email
 Authentication-Results can be forged unless its receiving trust boundary is known;
 it cannot independently establish sender integrity. Ledger approval requires
 human verification through a trusted channel; remembering attacker bank details
@@ -111,3 +110,37 @@ results real-world fraud accuracy.
   An approval adds a baseline and never rewrites past reports or approves payment.
 - Fake mode accepts exact checked-in sample fixtures only and visibly identifies
   itself. Unrecognised uploads fail closed to REVIEW; there is no fabricated parser.
+- The later database instruction selects Supabase/Postgres for application
+  persistence. The connected account has no Preflight project; use the official
+  local Supabase database image by default rather than changing unrelated hosted
+  apps. Hosted Supabase uses an explicit TLS connection string, server-side only.
+  SQLite remains an explicit offline test/evaluation adapter, never an automatic
+  fallback after a PostgreSQL error. Money remains text plus Decimal in both.
+- Supabase tables live in a private `preflight` schema, have RLS enabled, and grant
+  no anonymous/browser access. The local backend connects as the schema owner;
+  it has no authenticated end-user boundary. Migration/seed are explicit Compose
+  tasks. Approvals and reports persist in Supabase alongside invoice history.
+- Evaluation uses twenty equal seeded strata, 24 cases each (480 total). Every
+  comparison runs the real pipeline against fresh in-memory SQLite, fixed time,
+  trusted synthetic history and FakeExtractor. Seven ablations remove one check
+  each; a naive baseline retains arithmetic and identifiers. No check is disabled
+  by web inputs. Ground-truth labels exist only in evaluation code.
+- Non-PASS means positive triage. Legitimate reviews count as friction, including
+  prudent missing-data reviews. Each attack's precision/FPR reuses the same
+  complete legitimate pool; rows cannot be summed. Confidence intervals are
+  Wilson 95% using Decimal; correlated templates make them descriptive only.
+- Bank attacks deliberately include missing bank observations and wrongly cited
+  superseded accounts. Wrongly cited coherent historical quotes test amount
+  semantic misses. Preserve these misses in measured output rather than tuning
+  labels to inflate recall. This corpus is not production-prevalence evidence.
+- Fixed CI limits are initial measured critical recall minus 5 percentage points
+  and clean FPR plus 2 points. Only an explicit calibration flag can rewrite them;
+  CI never recalibrates. No held-out or real-world accuracy claim is made.
+- Live smoke tests use five synthetic invoices and explicit provider configuration,
+  report field accuracy, terminal schema failures, provider failures and invalid
+  citations. They never run in CI or transmit user uploads automatically.
+
+- Real-provider testing exposed unbounded completion generation and local schema
+  visibility differences. Provider requests now include a 2,048-token output cap
+  and the trusted JSON schema in user-message context outside the untrusted
+  document block. The system prompt remains constant and contains no documents.

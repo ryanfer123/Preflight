@@ -13,7 +13,7 @@
 {% if not report.findings %}<p>No check findings are available. Extraction must succeed before verification can run.</p>{% endif %}
 {% if report.provenance.detail %}<p class="notice">{{ report.provenance.detail }}</p>{% endif %}
 </section>
-<aside class="gaps" aria-labelledby="gaps-heading"><h2 id="gaps-heading">Could not be verified</h2><p>A PASS never removes these gaps.</p><ul>{% for gap in report.unverifiable_checks %}<li>{{ gap }}</li>{% else %}<li>No verification gaps reported.</li>{% endfor %}</ul>{% if report.reasons %}<h3>Decision reasons</h3><ul>{% for reason in report.reasons %}<li>{{ reason }}</li>{% endfor %}</ul>{% endif %}</aside></div>
+<aside class="gaps" aria-labelledby="gaps-heading"><h2 id="gaps-heading">Could not be verified</h2><p>A PASS never removes these gaps.</p><ul>{% for gap in report.unverifiable_checks %}<li>{{ check_labels.get(gap, gap) }}</li>{% else %}<li>No verification gaps reported.</li>{% endfor %}</ul>{% if report.reasons %}<h3>Decision reasons</h3><ul>{% for reason in report.reasons %}<li>{{ reason }}</li>{% endfor %}</ul>{% endif %}</aside></div>
 {% if vendor and report.invoice_id %}<section class="next-step"><div><h2>Payment details need a human baseline</h2><p>Verify the exact account independently before remembering it.</p></div><a class="button secondary" href="/ledger#vendor-{{ vendor.id }}">Review vendor bank details</a></section>{% endif %}
 <p class="provenance">Document SHA-256: {{ report.provenance.document_hash or 'Unavailable' }}<br>Extraction: {{ report.provenance.extraction_status }}. This report is a snapshot; later approvals do not rewrite it.</p>
 {% endblock %}

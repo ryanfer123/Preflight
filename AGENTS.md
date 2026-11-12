@@ -15,7 +15,10 @@ Run uv sync --locked --group dev, then make check.
 make check runs Ruff lint/format checks, mypy --strict on src/preflight, and pytest.
 Tests must be offline; the autouse socket guard prohibits connection attempts.
 Use Hypothesis for identifier properties and deterministic examples for boundaries.
-Tests use FakeExtractor when extraction is introduced in M3.
+Tests use FakeExtractor and never connect to Supabase or a live model.
+Application persistence uses Supabase Postgres in the private preflight schema.
+SQLite is the explicit offline adapter; never silently fall back after DB errors.
+Run make eval for fixed regression gates. Schema migrations live in supabase/migrations.
 
 ## Milestones
 M0 tooling/docs; M1 models/identifiers; M2 checks/ledger/policy;

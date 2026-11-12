@@ -45,6 +45,8 @@ def test_provider_schema_and_untrusted_prompt() -> None:
         assert payload["messages"][0] == {"role": "system", "content": SYSTEM_PROMPT}
         assert injection not in payload["messages"][0]["content"]
         assert payload["response_format"]["type"] == "json_schema"
+        assert payload["max_tokens"] == 2048
+        assert "REQUIRED_OUTPUT_SCHEMA" in payload["messages"][1]["content"][0]["text"]
         assert "UNTRUSTED_DOCUMENT_DATA" in payload["messages"][1]["content"][0]["text"]
         assert request.url == "http://local.example/v1/chat/completions"
         assert request.extensions["timeout"]["read"] == 30

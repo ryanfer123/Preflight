@@ -1,0 +1,590 @@
+{
+  "00700a9687b98796f4c221692c1c9a3e2b8485d2109c606f2bf0d42db8b98e71": {
+    "invoice": {
+      "vendor_name": "Acme",
+      "invoice_number": "PF-clean-002",
+      "currency": "INR",
+      "gstin": "27AAPFU0939F1ZV",
+      "registration_state": "27",
+      "bank": {
+        "account_number": "123456",
+        "ifsc": "SBIN0001234",
+        "upi_vpa": null,
+        "iban": null
+      },
+      "line_items": [
+        {
+          "description": "Workshop parts",
+          "quantity": "2",
+          "unit_price": "50.57",
+          "total": "101.14"
+        }
+      ],
+      "subtotal": "101.14",
+      "tax": "18.21",
+      "total": "119.35"
+    },
+    "evidence": [
+      {
+        "field": "vendor_name",
+        "source_snippet": "Acme",
+        "page": 1
+      },
+      {
+        "field": "invoice_number",
+        "source_snippet": "PF-clean-002",
+        "page": 1
+      },
+      {
+        "field": "currency",
+        "source_snippet": "INR",
+        "page": 1
+      },
+      {
+        "field": "gstin",
+        "source_snippet": "27AAPFU0939F1ZV",
+        "page": 1
+      },
+      {
+        "field": "registration_state",
+        "source_snippet": "27",
+        "page": 1
+      },
+      {
+        "field": "subtotal",
+        "source_snippet": "101.14",
+        "page": 1
+      },
+      {
+        "field": "tax",
+        "source_snippet": "18.21",
+        "page": 1
+      },
+      {
+        "field": "total",
+        "source_snippet": "119.35",
+        "page": 1
+      },
+      {
+        "field": "bank.account_number",
+        "source_snippet": "123456",
+        "page": 1
+      },
+      {
+        "field": "bank.ifsc",
+        "source_snippet": "SBIN0001234",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.description",
+        "source_snippet": "Workshop parts",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.quantity",
+        "source_snippet": "2",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.unit_price",
+        "source_snippet": "50.57",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.total",
+        "source_snippet": "101.14",
+        "page": 1
+      }
+    ]
+  },
+  "dd156af3f569cfc8e9e2a341514c7dd906bd20387ba6a2efa273cbb7b3e603c6": {
+    "invoice": {
+      "vendor_name": "Acme",
+      "invoice_number": "PF-bank_change-002",
+      "currency": "INR",
+      "gstin": "27AAPFU0939F1ZV",
+      "registration_state": "27",
+      "bank": {
+        "account_number": "654321",
+        "ifsc": "SBIN0001234",
+        "upi_vpa": null,
+        "iban": null
+      },
+      "line_items": [
+        {
+          "description": "Workshop parts",
+          "quantity": "2",
+          "unit_price": "48.52",
+          "total": "97.04"
+        }
+      ],
+      "subtotal": "97.04",
+      "tax": "17.47",
+      "total": "114.51"
+    },
+    "evidence": [
+      {
+        "field": "vendor_name",
+        "source_snippet": "Acme",
+        "page": 1
+      },
+      {
+        "field": "invoice_number",
+        "source_snippet": "PF-bank_change-002",
+        "page": 1
+      },
+      {
+        "field": "currency",
+        "source_snippet": "INR",
+        "page": 1
+      },
+      {
+        "field": "gstin",
+        "source_snippet": "27AAPFU0939F1ZV",
+        "page": 1
+      },
+      {
+        "field": "registration_state",
+        "source_snippet": "27",
+        "page": 1
+      },
+      {
+        "field": "subtotal",
+        "source_snippet": "97.04",
+        "page": 1
+      },
+      {
+        "field": "tax",
+        "source_snippet": "17.47",
+        "page": 1
+      },
+      {
+        "field": "total",
+        "source_snippet": "114.51",
+        "page": 1
+      },
+      {
+        "field": "bank.account_number",
+        "source_snippet": "654321",
+        "page": 1
+      },
+      {
+        "field": "bank.ifsc",
+        "source_snippet": "SBIN0001234",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.description",
+        "source_snippet": "Workshop parts",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.quantity",
+        "source_snippet": "2",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.unit_price",
+        "source_snippet": "48.52",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.total",
+        "source_snippet": "97.04",
+        "page": 1
+      }
+    ]
+  },
+  "a76c5cf15cbed1f8e82e6dfe203e6b7ac0207d77eb817e9e485b4ae5323525bc": {
+    "invoice": {
+      "vendor_name": "Acme",
+      "invoice_number": "PF-lookalike-002",
+      "currency": "INR",
+      "gstin": "27AAPFU0939F1ZV",
+      "registration_state": "27",
+      "bank": {
+        "account_number": "123456",
+        "ifsc": "SBIN0001234",
+        "upi_vpa": null,
+        "iban": null
+      },
+      "line_items": [
+        {
+          "description": "Workshop parts",
+          "quantity": "2",
+          "unit_price": "51.18",
+          "total": "102.36"
+        }
+      ],
+      "subtotal": "102.36",
+      "tax": "18.42",
+      "total": "120.78"
+    },
+    "evidence": [
+      {
+        "field": "vendor_name",
+        "source_snippet": "Acme",
+        "page": 1
+      },
+      {
+        "field": "invoice_number",
+        "source_snippet": "PF-lookalike-002",
+        "page": 1
+      },
+      {
+        "field": "currency",
+        "source_snippet": "INR",
+        "page": 1
+      },
+      {
+        "field": "gstin",
+        "source_snippet": "27AAPFU0939F1ZV",
+        "page": 1
+      },
+      {
+        "field": "registration_state",
+        "source_snippet": "27",
+        "page": 1
+      },
+      {
+        "field": "subtotal",
+        "source_snippet": "102.36",
+        "page": 1
+      },
+      {
+        "field": "tax",
+        "source_snippet": "18.42",
+        "page": 1
+      },
+      {
+        "field": "total",
+        "source_snippet": "120.78",
+        "page": 1
+      },
+      {
+        "field": "bank.account_number",
+        "source_snippet": "123456",
+        "page": 1
+      },
+      {
+        "field": "bank.ifsc",
+        "source_snippet": "SBIN0001234",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.description",
+        "source_snippet": "Workshop parts",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.quantity",
+        "source_snippet": "2",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.unit_price",
+        "source_snippet": "51.18",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.total",
+        "source_snippet": "102.36",
+        "page": 1
+      }
+    ]
+  },
+  "bb743dae624490571e4e348d11613e4641bf3a9492bc71c7f2e9c6a08494bbe4": {
+    "invoice": {
+      "vendor_name": "Acme",
+      "invoice_number": "PF-duplicate-002",
+      "currency": "INR",
+      "gstin": "27AAPFU0939F1ZV",
+      "registration_state": "27",
+      "bank": {
+        "account_number": "123456",
+        "ifsc": "SBIN0001234",
+        "upi_vpa": null,
+        "iban": null
+      },
+      "line_items": [
+        {
+          "description": "Workshop parts",
+          "quantity": "2",
+          "unit_price": "51.97",
+          "total": "103.94"
+        }
+      ],
+      "subtotal": "103.94",
+      "tax": "18.71",
+      "total": "122.65"
+    },
+    "evidence": [
+      {
+        "field": "vendor_name",
+        "source_snippet": "Acme",
+        "page": 1
+      },
+      {
+        "field": "invoice_number",
+        "source_snippet": "PF-duplicate-002",
+        "page": 1
+      },
+      {
+        "field": "currency",
+        "source_snippet": "INR",
+        "page": 1
+      },
+      {
+        "field": "gstin",
+        "source_snippet": "27AAPFU0939F1ZV",
+        "page": 1
+      },
+      {
+        "field": "registration_state",
+        "source_snippet": "27",
+        "page": 1
+      },
+      {
+        "field": "subtotal",
+        "source_snippet": "103.94",
+        "page": 1
+      },
+      {
+        "field": "tax",
+        "source_snippet": "18.71",
+        "page": 1
+      },
+      {
+        "field": "total",
+        "source_snippet": "122.65",
+        "page": 1
+      },
+      {
+        "field": "bank.account_number",
+        "source_snippet": "123456",
+        "page": 1
+      },
+      {
+        "field": "bank.ifsc",
+        "source_snippet": "SBIN0001234",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.description",
+        "source_snippet": "Workshop parts",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.quantity",
+        "source_snippet": "2",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.unit_price",
+        "source_snippet": "51.97",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.total",
+        "source_snippet": "103.94",
+        "page": 1
+      }
+    ]
+  },
+  "fb6fa26c15c6c0e9d2571d04192094639f8e9817f93cbb03ea9494743006a200": {
+    "invoice": {
+      "vendor_name": "Acme",
+      "invoice_number": "PF-arithmetic_tamper-002",
+      "currency": "INR",
+      "gstin": "27AAPFU0939F1ZV",
+      "registration_state": "27",
+      "bank": {
+        "account_number": "123456",
+        "ifsc": "SBIN0001234",
+        "upi_vpa": null,
+        "iban": null
+      },
+      "line_items": [
+        {
+          "description": "Workshop parts",
+          "quantity": "2",
+          "unit_price": "50.25",
+          "total": "100.50"
+        }
+      ],
+      "subtotal": "100.50",
+      "tax": "18.09",
+      "total": "119.99"
+    },
+    "evidence": [
+      {
+        "field": "vendor_name",
+        "source_snippet": "Acme",
+        "page": 1
+      },
+      {
+        "field": "invoice_number",
+        "source_snippet": "PF-arithmetic_tamper-002",
+        "page": 1
+      },
+      {
+        "field": "currency",
+        "source_snippet": "INR",
+        "page": 1
+      },
+      {
+        "field": "gstin",
+        "source_snippet": "27AAPFU0939F1ZV",
+        "page": 1
+      },
+      {
+        "field": "registration_state",
+        "source_snippet": "27",
+        "page": 1
+      },
+      {
+        "field": "subtotal",
+        "source_snippet": "100.50",
+        "page": 1
+      },
+      {
+        "field": "tax",
+        "source_snippet": "18.09",
+        "page": 1
+      },
+      {
+        "field": "total",
+        "source_snippet": "119.99",
+        "page": 1
+      },
+      {
+        "field": "bank.account_number",
+        "source_snippet": "123456",
+        "page": 1
+      },
+      {
+        "field": "bank.ifsc",
+        "source_snippet": "SBIN0001234",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.description",
+        "source_snippet": "Workshop parts",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.quantity",
+        "source_snippet": "2",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.unit_price",
+        "source_snippet": "50.25",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.total",
+        "source_snippet": "100.50",
+        "page": 1
+      }
+    ]
+  },
+  "ada2be55fd37659e9c9b78f3c298f223cf8457ebb841316de32295c9c5fd369a": {
+    "invoice": {
+      "vendor_name": "Acme",
+      "invoice_number": "PF-prompt_injection-002",
+      "currency": "INR",
+      "gstin": "27AAPFU0939F1ZV",
+      "registration_state": "27",
+      "bank": {
+        "account_number": "654321",
+        "ifsc": "SBIN0001234",
+        "upi_vpa": null,
+        "iban": null
+      },
+      "line_items": [
+        {
+          "description": "Workshop parts",
+          "quantity": "2",
+          "unit_price": "50.95",
+          "total": "101.90"
+        }
+      ],
+      "subtotal": "101.90",
+      "tax": "18.34",
+      "total": "120.24"
+    },
+    "evidence": [
+      {
+        "field": "vendor_name",
+        "source_snippet": "Acme",
+        "page": 1
+      },
+      {
+        "field": "invoice_number",
+        "source_snippet": "PF-prompt_injection-002",
+        "page": 1
+      },
+      {
+        "field": "currency",
+        "source_snippet": "INR",
+        "page": 1
+      },
+      {
+        "field": "gstin",
+        "source_snippet": "27AAPFU0939F1ZV",
+        "page": 1
+      },
+      {
+        "field": "registration_state",
+        "source_snippet": "27",
+        "page": 1
+      },
+      {
+        "field": "subtotal",
+        "source_snippet": "101.90",
+        "page": 1
+      },
+      {
+        "field": "tax",
+        "source_snippet": "18.34",
+        "page": 1
+      },
+      {
+        "field": "total",
+        "source_snippet": "120.24",
+        "page": 1
+      },
+      {
+        "field": "bank.account_number",
+        "source_snippet": "654321",
+        "page": 1
+      },
+      {
+        "field": "bank.ifsc",
+        "source_snippet": "SBIN0001234",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.description",
+        "source_snippet": "Workshop parts",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.quantity",
+        "source_snippet": "2",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.unit_price",
+        "source_snippet": "50.95",
+        "page": 1
+      },
+      {
+        "field": "line_items.0.total",
+        "source_snippet": "101.90",
+        "page": 1
+      }
+    ]
+  }
+}

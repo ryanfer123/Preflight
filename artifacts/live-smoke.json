@@ -1,0 +1,75 @@
+{
+  "samples": [
+    {
+      "sample": "clean",
+      "status": "success",
+      "correct_fields": 12,
+      "expected_fields": 14,
+      "citation_error": "evidence_missing",
+      "extra_fields": []
+    },
+    {
+      "sample": "bank-change",
+      "status": "success",
+      "correct_fields": 13,
+      "expected_fields": 14,
+      "citation_error": "evidence_missing",
+      "extra_fields": []
+    },
+    {
+      "sample": "duplicate",
+      "status": "success",
+      "correct_fields": 12,
+      "expected_fields": 14,
+      "citation_error": "evidence_missing",
+      "extra_fields": []
+    },
+    {
+      "sample": "arithmetic-tamper",
+      "status": "extraction_failed",
+      "reason": "Provider output failed schema validation twice"
+    },
+    {
+      "sample": "prompt-injection",
+      "status": "success",
+      "correct_fields": 12,
+      "expected_fields": 14,
+      "citation_error": "evidence_missing",
+      "extra_fields": []
+    }
+  ],
+  "requests": 5,
+  "model": "qwen2.5:0.5b",
+  "provider": "OpenAICompatibleExtractor",
+  "output_token_limit": 2048,
+  "field_accuracy": {
+    "value": "0.700000",
+    "lower": "0.584557",
+    "upper": "0.794634",
+    "numerator": 49,
+    "denominator": 70
+  },
+  "terminal_extraction_failure_rate": {
+    "value": "0.200000",
+    "lower": "0.036224",
+    "upper": "0.624465",
+    "numerator": 1,
+    "denominator": 5
+  },
+  "schema_failure_rate": {
+    "value": "0.200000",
+    "lower": "0.036224",
+    "upper": "0.624465",
+    "numerator": 1,
+    "denominator": 5
+  },
+  "provider_failure_rate": {
+    "value": "0.000000",
+    "lower": "0.000000",
+    "upper": "0.434482",
+    "numerator": 0,
+    "denominator": 5
+  },
+  "ungrounded_extractions": 4,
+  "limitation": "Terminal failures include provider/HTTP/schema failure. Schema retry events are not observable through the Extractor protocol. Successful retries are not counted. No verdict accuracy or real invoice quality claim is made."
+}

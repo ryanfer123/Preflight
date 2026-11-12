@@ -1,0 +1,16 @@
+.git
+.venv
+.env*
+*.sqlite3*
+.idea
+app
+gradle
+.gradle
+build
+artifacts
+__pycache__
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.hypothesis
+tests

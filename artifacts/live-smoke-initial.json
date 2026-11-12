@@ -1,0 +1,53 @@
+{
+  "samples": [
+    {
+      "sample": "clean",
+      "status": "extraction_failed",
+      "reason": "Provider request failed after bounded retries"
+    },
+    {
+      "sample": "bank-change",
+      "status": "extraction_failed",
+      "reason": "Provider request failed after bounded retries"
+    },
+    {
+      "sample": "duplicate",
+      "status": "extraction_failed",
+      "reason": "Provider request failed after bounded retries"
+    },
+    {
+      "sample": "arithmetic-tamper",
+      "status": "extraction_failed",
+      "reason": "Provider request failed after bounded retries"
+    },
+    {
+      "sample": "prompt-injection",
+      "status": "extraction_failed",
+      "reason": "Provider request failed after bounded retries"
+    }
+  ],
+  "requests": 5,
+  "field_accuracy": {
+    "value": "0.000000",
+    "lower": "0.000000",
+    "upper": "0.052023",
+    "numerator": 0,
+    "denominator": 70
+  },
+  "terminal_extraction_failure_rate": {
+    "value": "1.000000",
+    "lower": "0.565518",
+    "upper": "1.000000",
+    "numerator": 5,
+    "denominator": 5
+  },
+  "schema_failure_rate": {
+    "value": "0.000000",
+    "lower": "0.000000",
+    "upper": "0.434482",
+    "numerator": 0,
+    "denominator": 5
+  },
+  "ungrounded_extractions": 0,
+  "limitation": "Terminal failures include provider/HTTP/schema failure. Schema retry events are not observable through the Extractor protocol. Successful retries are not counted. No verdict accuracy or real invoice quality claim is made."
+}

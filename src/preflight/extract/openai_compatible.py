@@ -95,7 +95,10 @@ class OpenAICompatibleExtractor:
         content: list[dict[str, object]] = [
             {
                 "type": "text",
-                "text": "UNTRUSTED_DOCUMENT_DATA\n"
+                "text": "REQUIRED_OUTPUT_SCHEMA\n"
+                + json.dumps(extraction_schema(), separators=(",", ":"))
+                + "\nReturn one object matching this schema; cite each populated field once.\n"
+                + "UNTRUSTED_DOCUMENT_DATA\n"
                 + json.dumps({"document_text": document_text}, ensure_ascii=False)
                 + "\nEND_UNTRUSTED_DOCUMENT_DATA",
             }
@@ -117,6 +120,7 @@ class OpenAICompatibleExtractor:
         payload: dict[str, object] = {
             "model": self._model,
             "temperature": 0,
+            "max_tokens": 2048,
             "messages": [
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": content},

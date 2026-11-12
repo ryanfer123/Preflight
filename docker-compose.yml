@@ -1,0 +1,48 @@
+services:
+  supabase-db:
+    image: supabase/postgres:17.6.1.063
+    environment:
+      POSTGRES_PASSWORD: ${PREFLIGHT_LOCAL_DB_PASSWORD:-preflight-local-demo}
+      POSTGRES_DB: postgres
+    volumes:
+      - preflight-supabase:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    # No database port is published to the host or LAN.
+  migrate:
+    build: .
+    environment:
+      PREFLIGHT_DATABASE_URL: postgresql://postgres:${PREFLIGHT_LOCAL_DB_PASSWORD:-preflight-local-demo}@supabase-db:5432/postgres
+    volumes:
+      - ./supabase/migrations:/app/migrations:ro
+    command: ["python", "-m", "preflight.migrate", "/app/migrations"]
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+  seed:
+    build: .
+    environment:
+      PREFLIGHT_DATABASE_URL: postgresql://postgres:${PREFLIGHT_LOCAL_DB_PASSWORD:-preflight-local-demo}@supabase-db:5432/postgres
+    command: ["python", "-m", "preflight.demo"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+  web:
+    build: .
+    environment:
+      PREFLIGHT_DATABASE_URL: postgresql://postgres:${PREFLIGHT_LOCAL_DB_PASSWORD:-preflight-local-demo}@supabase-db:5432/postgres
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+volumes:
+  preflight-supabase:

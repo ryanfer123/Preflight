@@ -15,10 +15,10 @@ from preflight.checks import (
 )
 from preflight.checks.common import bank_identifiers, finding
 from preflight.context import Context
+from preflight.database import LedgerBackend
 from preflight.extract import Extractor
 from preflight.extract.documents import Document, IngestionError, Upload, ingest
 from preflight.extract.evidence import evidence_error
-from preflight.ledger import Ledger
 from preflight.models import Evidence, ExtractionFailure, Finding, Invoice, StrictModel
 from preflight.policy import Policy, decide
 
@@ -93,7 +93,7 @@ def _context(
     email_document: Document | None,
     extraction_evidence: tuple[Evidence, ...],
     invoice: Invoice,
-    ledger: Ledger,
+    ledger: LedgerBackend,
     policy: Policy,
     received_at: datetime,
     vendor_id: int | None,
@@ -135,7 +135,22 @@ def _context(
     )
 
 
-def _checks(invoice: Invoice, context: Context) -> list[Finding]:
+CHECK_NAMES = frozenset(
+    {
+        "identifiers",
+        "arithmetic",
+        "bank_change",
+        "sender",
+        "duplicates",
+        "amount_anomaly",
+        "pressure_language",
+    }
+)
+
+
+def _checks(
+    invoice: Invoice, context: Context, disabled_checks: frozenset[str]
+) -> list[Finding]:
     checks: tuple[Callable[[Invoice, Context], list[Finding]], ...] = (
         identifiers.check,
         arithmetic.check,
@@ -148,6 +163,8 @@ def _checks(invoice: Invoice, context: Context) -> list[Finding]:
     findings: list[Finding] = []
     verified: list[str] = []
     for check in checks:
+        if check.__module__.rsplit(".", 1)[-1] in disabled_checks:
+            continue
         observations = check(invoice, context)
         findings.extend(observations)
         # An absence of pressure cues is not a verification of invoice legitimacy.
@@ -169,13 +186,16 @@ def run(
     document: Upload,
     eml: Upload | None = None,
     *,
-    ledger: Ledger,
+    ledger: LedgerBackend,
     policy: Policy,
     extractor: Extractor,
     vendor_id: int | None = None,
     received_at: datetime | None = None,
+    disabled_checks: frozenset[str] = frozenset(),
 ) -> Report:
     """Verify a document; failures and ungrounded extraction never produce PASS/BLOCK."""
+    if disabled_checks - CHECK_NAMES:
+        raise ValueError("Unknown disabled check")
     timestamp = received_at or datetime.now(UTC)
     if timestamp.tzinfo is None:
         raise ValueError("received_at must include a timezone")
@@ -212,7 +232,7 @@ def run(
         timestamp,
         vendor_id,
     )
-    findings = _checks(invoice, context)
+    findings = _checks(invoice, context, disabled_checks)
     required = (invoice.vendor_name, invoice.invoice_number, invoice.total, invoice.currency)
     if any(value is None for value in required):
         findings.append(

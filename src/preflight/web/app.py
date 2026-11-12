@@ -13,14 +13,15 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.concurrency import run_in_threadpool
 from starlette.datastructures import FormData, UploadFile
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
+from preflight.database import configured_database, open_ledger
 from preflight.extract import Extractor
 from preflight.extract.documents import MAX_BYTES, IngestionError, Upload, ingest
 from preflight.extract.fake import FakeExtractor
 from preflight.extract.openai_compatible import OpenAICompatibleExtractor
-from preflight.ledger import Ledger
 from preflight.models import InvoiceExtraction, Severity
 from preflight.pipeline import Report, run
 from preflight.policy import load_policy
@@ -51,9 +52,10 @@ def configured_extractor() -> Extractor:
 
 
 def create_app(
-    *, database: str | Path = "preflight.sqlite3", extractor: Extractor | None = None
+    *, database: str | Path | None = None, extractor: Extractor | None = None
 ) -> FastAPI:
     """Create a local application with explicit provider and persistent report storage."""
+    database_target = database if database is not None else configured_database()
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
     app.add_middleware(
         TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost", "testserver"]
@@ -63,12 +65,6 @@ def create_app(
     templates = Jinja2Templates(directory=ROOT / "templates")
     provider = extractor if extractor is not None else configured_extractor()
     signing_key = secrets.token_bytes(32)
-    with Ledger(database) as ledger:
-        ledger.connection.execute(
-            "CREATE TABLE IF NOT EXISTS reports (id TEXT PRIMARY KEY, filename TEXT NOT NULL, "
-            "report TEXT NOT NULL)"
-        )
-        ledger.connection.commit()
 
     def token() -> CookieToken:
         nonce = secrets.token_hex(32)
@@ -90,6 +86,23 @@ def create_app(
                 "csrf": csrf,
                 "extractor": type(provider).__name__,
                 "fake": isinstance(provider, FakeExtractor),
+                "check_labels": {
+                    "identifiers.bank.iban": "IBAN validity (optional payment rail)",
+                    "identifiers.bank.upi_vpa": "UPI validity (optional payment rail)",
+                    "identifiers.bank.ifsc": "Bank routing code",
+                    "identifiers.gstin": "GSTIN validity",
+                    "identifiers.registration_state": "GST registration state",
+                    "sender": "Sender integrity: original email missing",
+                    "sender.authentication_trust": "Email receiver trust unverified",
+                    "sender.baseline": "Sender domain: no known vendor baseline",
+                    "sender.spf": "Email SPF result",
+                    "sender.dkim": "Email DKIM result",
+                    "sender.dmarc": "Email DMARC result",
+                    "bank_change": "Payment details: no comparison baseline",
+                    "amount_anomaly": "Amount history: insufficient baseline",
+                    "arithmetic": "Arithmetic: incomplete inputs",
+                    "required_fields": "Required invoice fields missing",
+                },
                 **context,
             },
         )
@@ -133,19 +146,33 @@ def create_app(
         return result
 
     def stored(report_id: str) -> tuple[str, Report]:
-        with Ledger(database) as ledger:
-            row = ledger.connection.execute(
-                "SELECT filename, report FROM reports WHERE id = ?", (report_id,)
-            ).fetchone()
+        with open_ledger(database_target) as ledger:
+            row = ledger.get_report(report_id)
         if row is None:
             raise HTTPException(404, "Report not found")
-        return str(row["filename"]), Report.model_validate_json(row["report"])
+        return row[0], Report.model_validate_json(row[1])
 
     @app.get("/", response_class=HTMLResponse)
     def home(request: Request) -> HTMLResponse:
-        with Ledger(database) as ledger:
+        with open_ledger(database_target) as ledger:
             vendors = ledger.list_vendors()
         return render(request, "upload.html", vendors=vendors, active="upload")
+
+    def verify(invoice: Upload, email: Upload | None, selected: str) -> str:
+        with open_ledger(database_target) as ledger:
+            if selected and ledger.get_vendor(int(selected)) is None:
+                raise HTTPException(400, "Unknown vendor")
+            report = run(
+                invoice,
+                email,
+                ledger=ledger,
+                policy=load_policy(),
+                extractor=provider,
+                vendor_id=int(selected) if selected else None,
+            )
+            report_id = secrets.token_urlsafe(24)
+            ledger.save_report(report_id, invoice.name, report.model_dump_json())
+        return report_id
 
     @app.post("/check")
     async def check(request: Request) -> RedirectResponse:
@@ -157,24 +184,7 @@ def create_app(
             selected = form.get("vendor", "")
             if not isinstance(selected, str) or (selected and not selected.isdecimal()):
                 raise HTTPException(400, "Invalid vendor selection")
-            with Ledger(database) as ledger:
-                if selected and ledger.get_vendor(int(selected)) is None:
-                    raise HTTPException(400, "Unknown vendor")
-                # The provider and SQLite work run on this request's single thread.
-                report = run(
-                    invoice,
-                    email,
-                    ledger=ledger,
-                    policy=load_policy(),
-                    extractor=provider,
-                    vendor_id=int(selected) if selected else None,
-                )
-                report_id = secrets.token_urlsafe(24)
-                with ledger.connection:
-                    ledger.connection.execute(
-                        "INSERT INTO reports VALUES (?, ?, ?)",
-                        (report_id, invoice.name, report.model_dump_json()),
-                    )
+            report_id = await run_in_threadpool(verify, invoice, email, selected)
             return RedirectResponse("/results/" + report_id, status_code=303)
         finally:
             await form.close()
@@ -182,7 +192,7 @@ def create_app(
     @app.get("/results/{report_id}", response_class=HTMLResponse)
     def result(request: Request, report_id: str) -> HTMLResponse:
         filename, report = stored(report_id)
-        with Ledger(database) as ledger:
+        with open_ledger(database_target) as ledger:
             vendor = (
                 ledger.find_vendor(report.invoice.vendor_name)
                 if (report.invoice and report.invoice.vendor_name)
@@ -190,10 +200,7 @@ def create_app(
             )
             # Resolve the persisted vendor, including an explicit upload selection.
             if report.invoice_id is not None:
-                row = ledger.connection.execute(
-                    "SELECT vendor_id FROM invoices WHERE id = ?", (report.invoice_id,)
-                ).fetchone()
-                vendor = ledger.get_vendor(row[0]) if row else vendor
+                vendor = ledger.invoice_vendor(report.invoice_id)
         return render(
             request,
             "result.html",
@@ -206,7 +213,7 @@ def create_app(
 
     @app.get("/ledger", response_class=HTMLResponse)
     def ledger_page(request: Request) -> HTMLResponse:
-        with Ledger(database) as ledger:
+        with open_ledger(database_target) as ledger:
             entries = [
                 (vendor, ledger.bank_accounts(vendor.id), ledger.list_history(vendor.id))
                 for vendor in ledger.list_vendors()
@@ -214,7 +221,7 @@ def create_app(
         return render(request, "ledger.html", entries=entries, active="ledger")
 
     def observed(vendor_id: int, account: str) -> str:
-        with Ledger(database) as ledger:
+        with open_ledger(database_target) as ledger:
             vendor = ledger.get_vendor(vendor_id)
             accounts = ledger.bank_accounts(vendor_id)
         if vendor is None or account not in {item.identifier for item in accounts}:
@@ -243,7 +250,7 @@ def create_app(
             if form.get("confirmed") != "yes" or not actor.strip() or len(actor) > 200:
                 raise HTTPException(400, "Confirm independent verification and enter your name")
             observed(vendor_id, account)
-            with Ledger(database) as ledger:
+            with open_ledger(database_target) as ledger:
                 ledger.approve_bank_account(vendor_id, account, approved_by=actor)
             return RedirectResponse("/ledger", status_code=303)
         finally:
@@ -254,4 +261,4 @@ def create_app(
 
 def application() -> FastAPI:
     """Uvicorn factory; use one worker and a persistent local ledger file."""
-    return create_app(database=os.environ.get("PREFLIGHT_DATABASE", "preflight.sqlite3"))
+    return create_app(database=configured_database())

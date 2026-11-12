@@ -26,3 +26,6 @@ dist/
 .env
 *.sqlite3
 uploads/
+.env.*
+*.sqlite3-*
+supabase/.temp/

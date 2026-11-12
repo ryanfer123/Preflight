@@ -1,0 +1,11 @@
+{
+  "critical_recall_min": {
+    "bank_change": "0.700000",
+    "reply_to": "0.950000",
+    "lookalike": "0.950000"
+  },
+  "clean_fpr_max": "0.020000",
+  "calibration_seed": 2026,
+  "calibration_cases": 480,
+  "rationale": "Initial measured recall minus 0.05; clean FPR plus 0.02. CI never recalibrates."
+}
