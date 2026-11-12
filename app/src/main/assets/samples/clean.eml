@@ -1,0 +1,9 @@
+From: Acme <billing@acme.example>
+To: owner@buyer.example
+Subject: Invoice for workshop parts
+Authentication-Results: receiver.example; spf=pass; dkim=pass; dmarc=pass
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+
+Please see the attached invoice.

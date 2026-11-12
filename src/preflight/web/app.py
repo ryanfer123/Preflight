@@ -25,6 +25,7 @@ from preflight.extract.openai_compatible import OpenAICompatibleExtractor
 from preflight.models import InvoiceExtraction, Severity
 from preflight.pipeline import Report, run
 from preflight.policy import load_policy
+from preflight.web.api import native_router
 from preflight.web.security import RequestBoundary
 
 ROOT = Path(__file__).parent
@@ -256,6 +257,15 @@ def create_app(
         finally:
             await form.close()
 
+    app.include_router(
+        native_router(
+            database_target,
+            type(provider).__name__,
+            new_token=token,
+            check_handler=check,
+            approve_handler=approve,
+        )
+    )
     return app
 
 

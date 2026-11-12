@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Preflight</string>
+    <string name="approval_confirmation">I independently verified this exact account with the vendor through a trusted channel.</string>
+</resources>

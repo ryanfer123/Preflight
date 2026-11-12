@@ -144,3 +144,23 @@ results real-world fraud accuracy.
   visibility differences. Provider requests now include a 2,048-token output cap
   and the trusted JSON schema in user-message context outside the untrusted
   document block. The system prompt remains constant and contains no documents.
+
+## Native Android delivery
+- The user's Android request extends the previous M5 boundary and authorizes
+  adapting the starter into a native Kotlin Android application. Retain its
+  existing Gradle tooling and add focused domain, data and presentation packages.
+- Native Material controls and Android's Storage Access Framework handle file
+  selection; no WebView or broad storage permission is needed. White surfaces,
+  indigo #4145b8, ink #17223b, muted #57627a and ground #f4f6fb carry the existing
+  identity into a compact, left-aligned mobile workbench. Verdicts use text/icons;
+  missing observations and exact bank approval details remain prominent.
+- The Python backend remains the sole verdict authority and connects to Supabase.
+  A versioned JSON interface reuses the existing ingestion, pipeline, ledger and
+  signed CSRF boundary. No Supabase/database/model secret is bundled in the APK.
+- For local use, adb reverse maps device localhost:8000 to the existing loopback
+  backend. The app uses that address by default; cleartext is limited to loopback.
+  HTTPS server configuration is supported without embedded credentials. No cloud
+  deployment, multi-user authentication or offline verdict fabrication is added.
+- Six bundled synthetic samples exercise the actual API, not canned client
+  verdicts. Fake/live extraction is labelled. Network and extraction failures
+  remain explicit. Selected content is bounded to 10 MiB and never logged.

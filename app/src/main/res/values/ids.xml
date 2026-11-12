@@ -1,0 +1,6 @@
+<resources>
+    <item name="screen_body" type="id" />
+    <item name="approver_name" type="id" />
+    <item name="approval_checkbox" type="id" />
+    <item name="server_address" type="id" />
+</resources>

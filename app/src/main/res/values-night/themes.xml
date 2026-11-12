@@ -1,0 +1,14 @@
+<resources>
+    <!-- Keep the invoice workspace palette consistent and readable in system night mode. -->
+    <style name="Theme.Preflight" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">#4145B8</item>
+        <item name="colorPrimaryVariant">#30348F</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSecondary">#4145B8</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:windowBackground">#F4F6FB</item>
+    </style>
+</resources>

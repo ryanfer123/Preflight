@@ -188,3 +188,48 @@ code, signed CSRF protects every POST, and trusted-host checks resist DNS rebind
 
 [EVAL.md](EVAL.md) contains the generated numbers and detailed limitations.
 [DESIGN.md](DESIGN.md) records assumptions and [AGENTS.md](AGENTS.md) contributor rules.
+
+## Native Android app
+
+Open this root directory in Android Studio and run the `app` module. The native
+Kotlin app is `dev.preflight.app`; it uses Material views and the system document
+picker, with native Check, Result, Ledger, Connection and Approval screens.
+It does not embed the website or calculate its own verdicts.
+
+```sh
+# Start the existing Supabase-backed server with the new native JSON API.
+docker compose up --build -d
+# Connect an Android emulator or a USB-debugging-enabled device:
+adb reverse tcp:8000 tcp:8000
+./gradlew :app:installDebug
+```
+
+The default server is `http://127.0.0.1:8000`. USB/emulator port reversal keeps the
+server on computer loopback. An HTTPS address can be saved under Connection;
+HTTP is restricted to device loopback. The server has no authentication, so keep
+this as a local workspace. Supabase and extraction credentials stay on the server.
+
+Try a sample invoice selects bundled synthetic PDF/email bytes; Check invoice
+uploads them to the actual `/api/v1` API and displays its response. Arbitrary
+uploads need a live extractor configured on the server; fixture mode is explicitly
+labelled. The app surfaces network failures and never fabricates offline results.
+Invoice bytes stay in memory, amounts stay strings, and bank approvals require
+an exact account, approver name and independent-verification checkbox.
+
+Android validation:
+
+```sh
+./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
+./gradlew :app:connectedDebugAndroidTest
+make check
+```
+
+Instrumented UI tests inject an offline repository. Real server/Supabase journeys
+are checked separately in the emulator. The existing Python evaluation remains
+unchanged and measures server behavior, not Android extraction or fraud accuracy.
+
+Native delivery status: the debug APK, eight JVM unit tests, Android lint, and
+239 offline backend tests pass. Native emulator UI verification remains pending:
+the initial graphics backend stalled and the test runner found no compatible
+ready device. Work is paused at the user's request after pushing this state;
+no native end-to-end UI pass is claimed.

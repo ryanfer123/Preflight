@@ -24,4 +24,6 @@ Run make eval for fixed regression gates. Schema migrations live in supabase/mig
 M0 tooling/docs; M1 models/identifiers; M2 checks/ledger/policy;
 M3 extraction; M4 web; M5 evaluation/Docker/docs.
 Keep make check green at each milestone and commit with a conventional message.
-The current request authorizes M4-M5. Stop after M5; do not deploy.
+The current request also authorizes the native Android app and its JSON API.
+Keep verdict logic on the server. Build/test Android in the existing app module.
+Do not deploy to the cloud or place backend secrets in the APK.

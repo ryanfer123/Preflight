@@ -29,3 +29,5 @@ uploads/
 .env.*
 *.sqlite3-*
 supabase/.temp/
+# Android module output remains local; deliver the APK by its verified build path.
+**/build/
