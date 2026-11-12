@@ -91,3 +91,23 @@ results real-world fraud accuracy.
 - [GST state master](https://docs.ewaybillgst.gov.in/apidocs/state-code.html)
 - [GST registration structure](https://www.dor.gov.in/files/inline-documents/Report_on_GST_Registration_0.pdf)
 - [SWIFT mod-97 guidance](https://www.swift.com/sites/default/files/documents/swift_solutions_faq_ibanplus.pdf)
+
+## M4-M5 assumptions and interface decisions
+- The later M4-M5 request extends the earlier M3 delivery limit. Preserve the
+  Android starter and keep the server local with one worker and no authentication.
+- Plain forms and native details/summary provide every flow without JavaScript.
+  The interface uses indigo #4145b8, ink #17223b, muted #57627a, white #ffffff,
+  ground #f4f6fb and divider #dce1ec. Avenir/Segoe system fonts keep it offline.
+  A fixed workspace rail leads to a left-aligned invoice intake and decision guide;
+  results put evidence beside a permanently visible verification-gap summary.
+  No decorative charts or invented fraud statistics appear in the product.
+- Signed double-submit CSRF tokens are process-local and expire on restart.
+  Trusted hosts prevent DNS rebinding. Each file is capped at 10 MiB and the
+  entire buffered multipart request at 21 MiB before parsing, including chunked
+  requests. Upload bytes are discarded; reports, citations and history persist.
+- Approval requires an already observed account, independent verification checkbox
+  and a self-reported actor name. This is an audit note, not authenticated identity.
+  Existing approvals retain a legacy label; new approvals record name and time.
+  An approval adds a baseline and never rewrites past reports or approves payment.
+- Fake mode accepts exact checked-in sample fixtures only and visibly identifies
+  itself. Unrecognised uploads fail closed to REVIEW; there is no fabricated parser.

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Preflight{% endblock %} · Invoice verification</title>
+  <link rel="stylesheet" href="/static/workbench.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="workspace">
+  <aside class="sidebar" aria-label="Workspace">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">p.</span> preflight</a>
+    <p class="workspace-label">Your payment checkpoint</p>
+    <nav aria-label="Main navigation">
+      <a href="/" {% if active == 'upload' %}aria-current="page"{% endif %}><span aria-hidden="true">▤</span> Check an invoice</a>
+      <a href="/ledger" {% if active == 'ledger' %}aria-current="page"{% endif %}><span aria-hidden="true">▦</span> Vendor ledger</a>
+    </nav>
+    <div class="sidebar-note"><span class="local-dot" aria-hidden="true"></span> Local workspace<p>No payments are made here.<br>No authentication is provided.</p></div>
+  </aside>
+  <div class="page">
+    <header class="topbar"><span>Before the money moves.</span><span class="mode">{% if fake %}Fixture extractor{% else %}Live extractor{% endif %}</span></header>
+    <main id="main" tabindex="-1">{% block content %}{% endblock %}</main>
+    <footer>Preflight checks the evidence. You make the payment decision.</footer>
+  </div>
+</div>
+</body>
+</html>

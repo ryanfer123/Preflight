@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Check an invoice{% endblock %}
+{% block content %}
+<div class="intro"><h1>A second look.<br>Before you pay.</h1><p>Check the numbers, the sender and the bank details.<br>Get a decision you can trace back to the invoice.</p></div>
+<div class="upload-layout">
+<section class="upload-panel" aria-labelledby="upload-heading">
+  <div class="panel-heading"><h2 id="upload-heading">Check an invoice</h2><span>PDF / PNG / JPEG</span></div>
+  <form action="/check" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <div class="file-well"><span class="document-icon" aria-hidden="true">▤</span><label for="invoice">Choose your invoice</label><p id="invoice-help">PDF, PNG or JPEG · maximum 10 MiB</p><input id="invoice" name="invoice" type="file" accept=".pdf,.png,.jpg,.jpeg" required aria-describedby="invoice-help"></div>
+    <div class="field"><label for="eml">Original email <span class="optional">Optional</span></label><p id="email-help">Add the .eml to check sender and Reply-To details. Maximum 10 MiB.</p><input id="eml" name="eml" type="file" accept=".eml" aria-describedby="email-help"></div>
+    <div class="field"><label for="vendor">Compare with vendor</label><select id="vendor" name="vendor"><option value="">Match an exact ledger name</option>{% for vendor in vendors %}<option value="{{ vendor.id }}">{{ vendor.name }}</option>{% endfor %}</select></div>
+    <div class="form-end"><p>Files are processed in memory.<br>Evidence and results stay in the local ledger.</p><button type="submit">Check invoice</button></div>
+  </form>
+</section>
+<aside class="guide" aria-label="How decisions work">
+  <h2>One verdict.<br>The evidence behind it.</h2>
+  <ul class="verdict-guide"><li><span class="status pass">✓ PASS</span><p>No blocking findings. Any verification gaps stay visible.</p></li><li><span class="status review">! REVIEW</span><p>Something needs a closer look, or evidence is missing.</p></li><li><span class="status block">× BLOCK</span><p>A critical issue, such as changed payment details.</p></li></ul>
+  <div class="extractor-note"><h3>Extraction, then verification</h3><p>The model reads fields. Deterministic checks decide the verdict.</p><p><strong>{{ extractor }}</strong>{% if fake %}<br>Demo fixtures only. Unrecognised documents return REVIEW. Configure a live endpoint for your own invoices.{% endif %}</p></div>
+</aside>
+</div>
+{% endblock %}

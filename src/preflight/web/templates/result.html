@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}{{ report.verdict }} · Check result{% endblock %}
+{% block content %}
+<a class="back" href="/">Check another invoice</a>
+<div class="result-heading"><div><h1>Invoice check</h1><p class="filename">{{ filename }}</p></div><span class="mode">{{ report.provenance.extractor }}</span></div>
+<section class="verdict {{ report.verdict|lower }}" aria-live="polite" aria-atomic="true">
+  <span class="verdict-icon" aria-hidden="true">{% if report.verdict == 'BLOCK' %}×{% elif report.verdict == 'REVIEW' %}!{% else %}✓{% endif %}</span>
+  <div><h2>{{ report.verdict }}</h2><p>{% if report.verdict == 'BLOCK' %}Hold payment. Verify the critical findings through a trusted channel.{% elif report.verdict == 'REVIEW' %}Take a closer look before paying. Resolve the findings and missing evidence.{% else %}No blocking findings. Read the verification gaps before deciding to pay.{% endif %}</p></div>
+</section>
+{% if report.invoice %}<dl class="invoice-strip"><div><dt>Vendor</dt><dd>{{ report.invoice.vendor_name or 'Not extracted' }}</dd></div><div><dt>Invoice</dt><dd>{{ report.invoice.invoice_number or 'Not extracted' }}</dd></div><div><dt>Amount</dt><dd>{{ report.invoice.currency or '' }} {{ report.invoice.total if report.invoice.total is not none else 'Not extracted' }}</dd></div><div><dt>Policy score</dt><dd>{{ report.score }}</dd></div></dl>{% endif %}
+<div class="result-layout"><section aria-labelledby="findings-heading"><h2 id="findings-heading">Findings &amp; evidence</h2>
+{% for severity in severities %}{% set items = report.findings|selectattr('severity', 'equalto', severity)|selectattr('status', 'equalto', 'observed')|list %}{% if items %}<h3 class="severity-label">{{ severity.value|capitalize }} <span>{{ items|length }}</span></h3>{% for finding in items %}<details class="finding"><summary>{{ finding.message }}<span class="check-id">{{ finding.check_id }}</span></summary><div class="citations">{% for evidence in finding.evidence %}<dl><dt>{{ evidence.field }}{% if evidence.page %} · Page {{ evidence.page }}{% endif %}</dt><dd><blockquote>{{ evidence.source_snippet }}</blockquote></dd></dl>{% endfor %}</div></details>{% endfor %}{% endif %}{% endfor %}
+{% if not report.findings %}<p>No check findings are available. Extraction must succeed before verification can run.</p>{% endif %}
+{% if report.provenance.detail %}<p class="notice">{{ report.provenance.detail }}</p>{% endif %}
+</section>
+<aside class="gaps" aria-labelledby="gaps-heading"><h2 id="gaps-heading">Could not be verified</h2><p>A PASS never removes these gaps.</p><ul>{% for gap in report.unverifiable_checks %}<li>{{ gap }}</li>{% else %}<li>No verification gaps reported.</li>{% endfor %}</ul>{% if report.reasons %}<h3>Decision reasons</h3><ul>{% for reason in report.reasons %}<li>{{ reason }}</li>{% endfor %}</ul>{% endif %}</aside></div>
+{% if vendor and report.invoice_id %}<section class="next-step"><div><h2>Payment details need a human baseline</h2><p>Verify the exact account independently before remembering it.</p></div><a class="button secondary" href="/ledger#vendor-{{ vendor.id }}">Review vendor bank details</a></section>{% endif %}
+<p class="provenance">Document SHA-256: {{ report.provenance.document_hash or 'Unavailable' }}<br>Extraction: {{ report.provenance.extraction_status }}. This report is a snapshot; later approvals do not rewrite it.</p>
+{% endblock %}

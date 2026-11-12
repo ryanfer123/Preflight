@@ -21,4 +21,4 @@ Tests use FakeExtractor when extraction is introduced in M3.
 M0 tooling/docs; M1 models/identifiers; M2 checks/ledger/policy;
 M3 extraction; M4 web; M5 evaluation/Docker/docs.
 Keep make check green at each milestone and commit with a conventional message.
-Current authorized delivery stops after M3. Web UI and evaluation remain M4-M5.
+The current request authorizes M4-M5. Stop after M5; do not deploy.

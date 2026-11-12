@@ -2,6 +2,7 @@
 
 import json
 import sqlite3
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
@@ -30,6 +31,16 @@ CREATE TABLE IF NOT EXISTS invoices (
 """
 
 
+@dataclass(frozen=True)
+class BankAccount:
+    """Observed account and explicit human approval audit details."""
+
+    identifier: str
+    approved: bool
+    approved_at: str | None
+    approved_by: str | None
+
+
 class Ledger:
     """Use with Ledger(path) as ledger; :memory: retains state within that scope."""
 
@@ -45,6 +56,14 @@ class Ledger:
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA foreign_keys = ON")
         connection.executescript(_SCHEMA)
+        columns = {
+            row[1] for row in connection.execute("PRAGMA table_info(vendor_bank_accounts)")
+        }
+        if "approved_by_name" not in columns:
+            connection.execute(
+                "ALTER TABLE vendor_bank_accounts ADD COLUMN approved_by_name TEXT"
+            )
+            connection.commit()
         self._connection = connection
         return self
 
@@ -125,20 +144,23 @@ class Ledger:
                 (vendor_id, account, first_seen.isoformat()),
             )
 
-    def approve_bank_account(self, vendor_id: int, account_identifier: str) -> None:
+    def approve_bank_account(
+        self, vendor_id: int, account_identifier: str, *, approved_by: str = "local user"
+    ) -> None:
         """Remember an explicitly human-approved canonical payment identifier."""
         account = normalise_identifier(account_identifier)
-        if not account:
-            raise ValueError("Empty bank identifier")
+        if not account or not approved_by.strip() or len(approved_by) > 200:
+            raise ValueError("Account and approver name are required")
         now = datetime.now(UTC).isoformat()
         with self.connection:
             self.connection.execute(
                 """INSERT INTO vendor_bank_accounts
                 (vendor_id, account_identifier_normalised, first_seen,
-                 approved_by_user, approved_at)
-                VALUES (?, ?, ?, 1, ?) ON CONFLICT(vendor_id, account_identifier_normalised)
-                DO UPDATE SET approved_by_user = 1, approved_at = excluded.approved_at""",
-                (vendor_id, account, now, now),
+                 approved_by_user, approved_at, approved_by_name)
+                VALUES (?, ?, ?, 1, ?, ?) ON CONFLICT(vendor_id, account_identifier_normalised)
+                DO UPDATE SET approved_by_user = 1, approved_at = excluded.approved_at,
+                approved_by_name = excluded.approved_by_name""",
+                (vendor_id, account, now, now, approved_by.strip()),
             )
 
     def approved_accounts(self, vendor_id: int) -> tuple[str, ...]:
@@ -203,6 +225,27 @@ class Ledger:
                 content_hash=row["content_hash"],
                 received_at=datetime.fromisoformat(row["received_at"]),
                 verdict=row["verdict"],
+            )
+            for row in rows
+        )
+
+    def list_vendors(self) -> tuple[Vendor, ...]:
+        """List established local vendor identities in name order."""
+        rows = self.connection.execute("SELECT id FROM vendors ORDER BY name").fetchall()
+        return tuple(vendor for row in rows if (vendor := self.get_vendor(row[0])) is not None)
+
+    def bank_accounts(self, vendor_id: int) -> tuple[BankAccount, ...]:
+        """List observed and approved accounts with their human audit trail."""
+        rows = self.connection.execute(
+            "SELECT * FROM vendor_bank_accounts WHERE vendor_id = ? ORDER BY first_seen",
+            (vendor_id,),
+        )
+        return tuple(
+            BankAccount(
+                identifier=row["account_identifier_normalised"],
+                approved=bool(row["approved_by_user"]),
+                approved_at=row["approved_at"],
+                approved_by=row["approved_by_name"],
             )
             for row in rows
         )
